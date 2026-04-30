@@ -1,0 +1,108 @@
+version: "3.8"
+
+networks:
+  hadoop_net:
+    driver: bridge
+
+services:
+  namenode:
+    build: .
+    container_name: namenode
+    hostname: namenode
+    environment:
+      - NODE_TYPE=namenode
+    ports:
+      - "9870:9870"
+      - "9000:9000"
+      - "8088:8088"
+      - "19888:19888"
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+      - ./data:/data
+    networks:
+      - hadoop_net
+    restart: unless-stopped
+    mem_limit: 2g
+    memswap_limit: 2g
+
+  secondarynamenode:
+    build: .
+    container_name: secondarynamenode
+    hostname: secondarynamenode
+    environment:
+      - NODE_TYPE=secondarynamenode
+    ports:
+      - "9868:9868"
+    volumes:
+      - secondarynamenode_data:/hadoop/dfs/secondary
+    networks:
+      - hadoop_net
+    depends_on:
+      - namenode
+    restart: unless-stopped
+    mem_limit: 1g
+    memswap_limit: 1g
+
+  datanode1:
+    build: .
+    container_name: datanode1
+    hostname: datanode1
+    environment:
+      - NODE_TYPE=datanode
+    ports:
+      - "9864:9864"
+      - "8042:8042"
+    volumes:
+      - datanode1_data:/hadoop/dfs/data
+    networks:
+      - hadoop_net
+    depends_on:
+      - namenode
+    restart: unless-stopped
+    mem_limit: 2g
+    memswap_limit: 2g
+
+  datanode2:
+    build: .
+    container_name: datanode2
+    hostname: datanode2
+    environment:
+      - NODE_TYPE=datanode
+    ports:
+      - "9865:9864"
+      - "8043:8042"
+    volumes:
+      - datanode2_data:/hadoop/dfs/data
+    networks:
+      - hadoop_net
+    depends_on:
+      - namenode
+    restart: unless-stopped
+    mem_limit: 2g
+    memswap_limit: 2g
+
+  datanode3:
+    build: .
+    container_name: datanode3
+    hostname: datanode3
+    environment:
+      - NODE_TYPE=datanode
+    ports:
+      - "9866:9864"
+      - "8044:8042"
+    volumes:
+      - datanode3_data:/hadoop/dfs/data
+    networks:
+      - hadoop_net
+    depends_on:
+      - namenode
+    restart: unless-stopped
+    mem_limit: 2g
+    memswap_limit: 2g
+
+volumes:
+  namenode_data:
+  secondarynamenode_data:
+  datanode1_data:
+  datanode2_data:
+  datanode3_data:
